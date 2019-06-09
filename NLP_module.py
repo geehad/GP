@@ -1,7 +1,9 @@
-
 from Obj_detection import detect_Obj
 from dep_parsing import dep_parsing
+from obj_relations import Objs_relations
 from Scene_Inference import support_inference
+
+
 #input_text = 'There was an old owl that lived in an oak. Yesterday he saw a boy helping an old man to carry a heavy basket. Today he saw a girl shouting at her mother'
 #input_text = 'There are two boys playing football in a club'
 #input_text = 'There are two boys playing with ball in a club'
@@ -27,8 +29,12 @@ from Scene_Inference import support_inference
 
 #input_text = 'There was an old owl that lived in an oak. Yesterday he saw a boy helping an old man to carry a heavy basket. Today he saw a girl shouting at her mother'
 
-input_text = 'There are two boys playing football in a club'
+input_text = 'There is a Computer in a Room.'
 objects=detect_Obj(input_text)
+objects_relations=Objs_relations(input_text)
 dep_parsing(objects,input_text)
+
 print("objects are : ",objects)
+print("objects_relations : ",objects_relations)
 #print(support_inference(objects))
+
