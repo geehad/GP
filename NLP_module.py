@@ -1,6 +1,7 @@
 from Obj_detection import detect_Obj
 from dep_parsing import dep_parsing
 from obj_relations import Objs_relations
+from model_actions import extract_models_actions
 from Scene_Inference import support_inference
 
 
@@ -29,12 +30,15 @@ from Scene_Inference import support_inference
 
 #input_text = 'There was an old owl that lived in an oak. Yesterday he saw a boy helping an old man to carry a heavy basket. Today he saw a girl shouting at her mother'
 
-input_text = 'There is a Computer in a Room.'
+input_text = "John drunk a juice in a coffee. John and alice eat some food in a resturant. John played football."
 objects=detect_Obj(input_text)
 objects_relations=Objs_relations(input_text)
+models_actions = extract_models_actions(input_text)
+
 dep_parsing(objects,input_text)
 
 print("objects are : ",objects)
 print("objects_relations : ",objects_relations)
+print("models_actions : ",models_actions)
 #print(support_inference(objects))
 
