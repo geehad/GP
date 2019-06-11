@@ -81,7 +81,7 @@ def Objs_relations(input_text):
                             relations.append(rel)
 
                 ###########################################################################################
-        #displacy.serve(parsed_sentence, style='dep')
+        displacy.serve(parsed_sentence, style='dep')
 
     return relations
 
@@ -89,4 +89,4 @@ def Objs_relations(input_text):
 
 
 
-#print(Objs_relations("There are two boys playing football in a club."))
+print(Objs_relations("John and Alice eat some food in a resturant."))
