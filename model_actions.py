@@ -72,8 +72,37 @@ def extract_models_actions(input_text):
                 objects = []
                 for child in word.children:
                     if child.dep_ == "dobj":
-                        objects.append(str(child))
-                        count_no_objects += 1
+
+                        if child.pos_ == "PRON":
+                            token_index = child.i-sent.start
+                            print("token value : ", child.text)
+                            print("token_index : ",token_index)
+                            text_preceding = ""
+                            for i in range(0, sentence_index):
+                                text_preceding += tokinized_sentences[i]
+
+                            last_sentence = ""
+                            for i in range(0, token_index):
+                                last_sentence += tokens_in_currentSentence[i] + " "
+                                if i == token_index - 1:
+                                    last_sentence += "."
+
+                            text_preceding += last_sentence
+
+                            print("text_preceding : ", text_preceding)
+                            no_preceding_pron = count_PRON(text_preceding)
+                            print("no_preceding_pron : ",no_preceding_pron)
+                            pron_num = no_preceding_pron + 1
+                            coref = doc._.coref_clusters[pron_num-1].mentions[-1]._.coref_cluster.main
+                            print("coref : ",coref)
+
+                            objects.append(str(coref))
+                            count_no_objects += 1
+
+                        else:
+                            objects.append(str(child))
+                            count_no_objects += 1
+
                     if (count_no_objects == 2):
                         break
                 # print (objects)
@@ -139,6 +168,6 @@ def extract_models_actions(input_text):
 
 
 
-print(extract_models_actions("My sister has a dog and she loves it. My mother has a cat and she loves it. My brother has a cat and he loves it."))
+print(extract_models_actions("My sister has a dog and she loves it. My mother has a cat and she loves it. My brother has a bird and he loves it."))
 
 
