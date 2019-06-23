@@ -7,6 +7,8 @@ nlp = spacy.load('en')
 neuralcoref.add_to_pipe(nlp)
 
 
+# human age(small(default),old) hair(default(none)) tall(default(1 -> meduim) , 0->short , 2->tall)
+#model color(default->none)  size(1->meduim , 0->small , 2->big)
 
 #############################################################################################################
 boy_synonymy =['boy','guy','son','brother']
@@ -19,11 +21,13 @@ man_woman_synonymy=['teacher','doctor']
 
 ############ human features #############################
 tall_synonymy = ['tall','lanky','soaring','giant','lofty']
+short_synonymy = ['short','little','tiny','shortened','stumpy','scrubby','squabby']
 old_synonymy = ['old','aged','elderly','senile','antiquated','ancient']
 ########################################################
 
 ########### Model features ##############################
 big_synonymy = ['big','large','massive','enormous','huge','gigantic','sizable','tremendous','colossal','immense']
+small_synonymy = ['small','little','tiny']
 
 ##########################################################
 
@@ -50,12 +54,10 @@ def get_coref (input_text):
     return object_coref
 
 #############################################################################################################
-
-
 def extract_models_char(input_text):
 
     object_coref = get_coref(input_text)
-    print(object_coref)
+    #print(object_coref)
 
     doc = nlp(input_text)
 
@@ -124,13 +126,16 @@ def extract_models_char(input_text):
                 object_chars = []
 
                 if (model_type == 'boy' or model_type == 'girl' or model_type == 'man' or model_type == 'woman'):
-                    object_chars = [False,False,""]    # is_tall,is_old,hair_color
+                    object_chars = [0,"none",1]    # not old, no color of hair , meduim height
                 else:
-                    object_chars = [False,""]  # is_big,color
+                    object_chars = ["none",1]  # no color, meduim size
+
 
                 is_tall = False
+                is_short = False
                 is_old = False
                 is_big = False
+                is_small = False
                 is_color = False
 
                 ############## find first adj ##############
@@ -147,20 +152,27 @@ def extract_models_char(input_text):
                         if (model_type == 'boy' or model_type == 'girl' or model_type == 'man'  or model_type == 'woman'):
                            if str(child) in tall_synonymy:
                                is_tall = True
-                               object_chars[0] = True
+                               object_chars[2] = 2
+                           elif str(child) in short_synonymy:
+                               is_short = True
+                               object_chars[2] = 0
 
                            elif str(child) in old_synonymy:
                                is_old = True
-                               object_chars[1] = True
+                               object_chars[0] = 1
 
                         ## 2- not human
                         else:
                             if str(child) in big_synonymy:
                                 is_big = True
-                                object_chars[0] = True
+                                object_chars[1] = 2
+                            elif str(child) in small_synonymy:
+                                is_small = True
+                                object_chars[1] = 0
+
                             elif check_color(str(child)):
                                 is_color = True
-                                object_chars[1] = str(child)
+                                object_chars[0] = str(child)
 
                         current_word = child
 
@@ -177,37 +189,33 @@ def extract_models_char(input_text):
                             if (model_type == 'boy' or model_type == 'girl' or model_type == 'man' or model_type == 'woman'):
                                 if str(child) in tall_synonymy:
                                     is_tall = True
-                                    object_chars[0] = True
+                                    object_chars[2] = 2
+
+                                elif str(child) in short_synonymy:
+                                    is_short = True
+                                    object_chars[2] = 0
 
                                 elif str(child) in old_synonymy:
                                     is_old = True
-                                    object_chars[1] = True
+                                    object_chars[0] = 1
 
                             ## 2- not human
                             else:
                                 if str(child) in big_synonymy:
                                     is_big = True
-                                    object_chars[0] = True
+                                    object_chars[1] = 2
+                                elif str(child) in small_synonymy:
+                                    is_small = True
+                                    object_chars[1] = 0
                                 elif check_color(str(child)):
                                     is_color = True
-                                    object_chars[1] = str(child)
+                                    object_chars[0] = str(child)
 
-                    if (  (is_tall and is_old) or  (is_big and is_color) ):       #edit --> add new features
+                    if (  (  (is_tall or is_short) and is_old) or  ( (is_big or is_small) and is_color) ):       #edit --> add new features
                         break
 
 
                 model_chars[model_type] = object_chars
 
     return model_chars
-
-
-
-
-
-#displacy.serve(doc, style='dep')
-#doc = nlp("The small and red and valuable book is on the table.")
-#  doc = nlp("There is a red Haired boy.")
-
-#print(extract_models_char("There is a tall and old teacher.He is happy. There is a red and huge box."))
-print(extract_models_char("There is a beutiful and tall teacher. she is tall."))
 
