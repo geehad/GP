@@ -4,25 +4,6 @@ import re
 
 nlp = spacy.load('en')
 
-#doc = nlp("The cup is on the table and under the lamp and in the room")
-#doc = nlp("The cup is on the table and under the lamp and in the room and a chair behind a table")
-#doc = nlp("There is a cup on the table and a book in the room and a chair behind a table")
-#doc = nlp("The cup which is blue is on the table")
-#doc = nlp("The cup Ahmed put is on the table")
-#doc = nlp("The boy was at his home")
-#doc = nlp("The cup which is blue is on the table and under the lamp")
-#doc = nlp("The table is opposite the door")
-#doc = nlp("The boy is right of the table")
-#doc = nlp("The boy was setting on the chair")
-#doc = nlp("The boy placed his book on the table")
-#doc = nlp("There is a cat under the red table")
-#doc = nlp("The present inside the big box is red")
-#doc = nlp("The boy was to the left of the table")
-#doc = nlp("The car is parked in front of the garden")
-#doc = nlp("There is a red chair to the right of the table")
-#doc = nlp("There is a small pin on top of the red table")
-#doc = nlp("There are two boys playing football in a club.")
-
 def Objs_relations(input_text):
 
     tokinized_sentences = re.split('(\.)', input_text)      ########################### to do -> edit split
@@ -30,7 +11,7 @@ def Objs_relations(input_text):
     relations = []
 
     for sentence in tokinized_sentences:
-        print("sentence is : ",sentence)
+        #print("sentence is : ",sentence)
         parsed_sentence=nlp(sentence)
         for word in parsed_sentence:
             current_prep = pnoun = pobj = " "
@@ -49,7 +30,7 @@ def Objs_relations(input_text):
                     #print("Enter", word, str(current_word))
 
                 if current_word.head.pos_ == "VERB":
-                    print("VERB", str(current_word.head))
+                    #print("VERB", str(current_word.head))
                     children_verb = current_word.head.children
 
                     if current_word.head.dep_ == "acl":
@@ -81,12 +62,9 @@ def Objs_relations(input_text):
                             relations.append(rel)
 
                 ###########################################################################################
-        displacy.serve(parsed_sentence, style='dep')
+        #displacy.serve(parsed_sentence, style='dep')
 
     return relations
 
 
 
-
-
-print(Objs_relations("John and Alice eat some food in a resturant."))
