@@ -9,16 +9,7 @@ import re
 nlp = spacy.load('en')
 neuralcoref.add_to_pipe(nlp)
 
-
-#parsed_origin_senstence= nlp("The boy with brown hair played football")
-#parsed_origin_senstence= nlp("The boy with brown hair was playing football")
-#parsed_origin_senstence= nlp("John drinks a juice")
-#parsed_origin_senstence= nlp("John and mary drink some juice")
-#parsed_origin_senstence= nlp("John and mary and alice drink some juice")
-#parsed_origin_senstence= nlp("John , mary , alice and bob drink some juice")
-#parsed_origin_senstence= nlp("John and mary drink some juice in a coffee")
-#parsed_origin_senstence= nlp("John cooked alice a delicious meal")
-
+object_coref_list =[]
 
 ####################################parsed_origin_senstence= nlp("John and mary drink in a coffee some juice")   --> drink is NOUN ??????
 
@@ -33,8 +24,22 @@ def count_PRON(input_text):
 
     return  count_pron
 
+##################################################################################################
+def get_objectCoref_map(input_text):  ################################################################ zai ma maktoob msh bageeb el lower wla 7aga 3shan law htt3dl
+
+    doc=nlp(input_text)
+    for i in range(0, len(doc._.coref_clusters)):
+        clusters_coref = doc._.coref_clusters
+        object_coref = doc._.coref_clusters[i].mentions[-1]._.coref_cluster.main
+
+        for j in range(1, len(clusters_coref[i])):
+            object_coref_list.append((object_coref, clusters_coref[i][j]))
+
+##################################################################################################
 
 def extract_models_actions(input_text):
+
+    get_objectCoref_map(input_text)
 
     lemmatizer = WordNetLemmatizer()
     #tokinized_sentences = re.split('(.)', input_text)  ########################### to do -> edit split
@@ -45,14 +50,14 @@ def extract_models_actions(input_text):
     for sent in doc.sents:
         tokinized_sentences.append(str(sent.text))
 
-    print("tokinized_sentences : ",tokinized_sentences)
+    #print("tokinized_sentences : ",tokinized_sentences)
     # verb , subject , [obj1 , obj2]
     models_actions = []
 
     sentence_index = -1
 
     for sent in doc.sents:
-        print("sent : ",sent)
+        #print("sent : ",sent)
         sentence_index += 1
 
         #print("sentence is : ", sentence)
@@ -75,8 +80,8 @@ def extract_models_actions(input_text):
 
                         if child.pos_ == "PRON":
                             token_index = child.i-sent.start
-                            print("token value : ", child.text)
-                            print("token_index : ",token_index)
+                            #print("token value : ", child.text)
+                            #print("token_index : ",token_index)
                             text_preceding = ""
                             for i in range(0, sentence_index):
                                 text_preceding += tokinized_sentences[i]
@@ -89,12 +94,13 @@ def extract_models_actions(input_text):
 
                             text_preceding += last_sentence
 
-                            print("text_preceding : ", text_preceding)
+                            #print("text_preceding : ", text_preceding)
                             no_preceding_pron = count_PRON(text_preceding)
-                            print("no_preceding_pron : ",no_preceding_pron)
+                            #print("no_preceding_pron : ",no_preceding_pron)
                             pron_num = no_preceding_pron + 1
-                            coref = doc._.coref_clusters[pron_num-1].mentions[-1]._.coref_cluster.main
-                            print("coref : ",coref)
+                            #coref = doc._.coref_clusters[pron_num-1].mentions[-1]._.coref_cluster.main
+                            coref = object_coref_list[pron_num-1][0]
+                            #print("coref : ",coref)
 
                             objects.append(str(coref))
                             count_no_objects += 1
@@ -116,8 +122,8 @@ def extract_models_actions(input_text):
                         ### get the num of pronouns preceding it from the start
                         if child.pos_ == "PRON":
                             token_index = child.i-sent.start
-                            print("token value : ", child.text)
-                            print("token_index : ",token_index)
+                            #print("token value : ", child.text)
+                            #print("token_index : ",token_index)
                             text_preceding = ""
                             for i in range(0, sentence_index):
                                 text_preceding += tokinized_sentences[i]
@@ -130,12 +136,13 @@ def extract_models_actions(input_text):
 
                             text_preceding += last_sentence
 
-                            print("text_preceding : ", text_preceding)
+                            #print("text_preceding : ", text_preceding)
                             no_preceding_pron = count_PRON(text_preceding)
-                            print("no_preceding_pron : ",no_preceding_pron)
+                            #print("no_preceding_pron : ",no_preceding_pron)
                             pron_num = no_preceding_pron + 1
-                            coref = doc._.coref_clusters[pron_num-1].mentions[-1]._.coref_cluster.main
-                            print("coref : ",coref)
+                            #coref = doc._.coref_clusters[pron_num-1].mentions[-1]._.coref_cluster.main
+                            coref = object_coref_list[pron_num-1][0]
+                            #print("coref : ",coref,"verb : ",verb)
 
                             subj = str(coref)
                             action = (verb, subj, objects)
@@ -167,7 +174,5 @@ def extract_models_actions(input_text):
     return models_actions
 
 
-
-print(extract_models_actions("My sister has a dog and she loves it. My mother has a cat and she loves it. My brother has a bird and he loves it."))
 
 
