@@ -1,44 +1,57 @@
-from Obj_detection import detect_Obj
-from dep_parsing import dep_parsing
+from models_char import extract_models_char
 from obj_relations import Objs_relations
 from model_actions import extract_models_actions
 from Scene_Inference import support_inference
 
+####################### files for the following modules ###########################
+file_models_char = open("models_char.txt", "w")
+file_models_actions = open("model_actions.txt", "w")
+file_models_relations = open("models_relations.txt", "w")
+##################################################################################
+file_input_text = open("input_text.txt", "r")
 
-#input_text = 'There was an old owl that lived in an oak. Yesterday he saw a boy helping an old man to carry a heavy basket. Today he saw a girl shouting at her mother'
-#input_text = 'There are two boys playing football in a club'
-#input_text = 'There are two boys playing with ball in a club'
-#input_text='The girl washes the dishes'
-#input_text='I played with a beautiful girl and a green ball'    #wolves -> wolf not wolv so use lemmatization not stemming
-#input_text="I saw two big and beutiful dogs"
-#input_text="I saw a slightly red flower"
-#input_text = "I saw a red and big flower"
-#input_text = "I saw a red and big flower"
-#input_text = "There is a Computer in a Room"
+###################### input text ###############################################     ---------- > take from GUI
 
-#input_text = "I saw a very big man"   -- > to do (parsing) give big only
-#input_text = "yesterday a smart and beutiful boy go to the club"   ---> smart Noun !! spacy sa7 !!
+input_text = file_input_text.read()
+#print(input_text)
+#input_text = "There is an old , tall and smart gentleman in a room. He has a small white cat and he carries it. There is a small black table behind a huge red chair. There is a black laptop to the right of a large brown bed."
+
+################################################################################
+
+char_models=extract_models_char(input_text)
+relations_models=Objs_relations(input_text)
+model_actions =extract_models_actions(input_text)
 
 
-#input_text = "There is a piece of cake on a table"  -----> not handled
+########################### write model chars ######################      -------------> edit after finish
+list_keys = list(char_models.keys())
+for i in range(0,len(char_models)):
+    current_model_name = list_keys[i]
+    current_model_chars= char_models[current_model_name]
+    file_models_char.write(current_model_name+" ")
+    for j in range(0,len(current_model_chars)):
+        if j < len(current_model_chars)-1 :
+            file_models_char.write(str(current_model_chars[j])+" ")
+        else:
+            file_models_char.write(str(current_model_chars[j])+"\n")
+
+########################## write model actions #######################   --------------> edit after finish
+for i in range(0,len(model_actions)):
+    file_models_actions.write(model_actions[i][1]+" ")
+    file_models_actions.write(model_actions[i][0]+" ")
+    list_objects = model_actions[i][2]
+    for j in range(0,len(list_objects)):
+        if len(list_objects) == 1:
+            file_models_actions.write(list_objects[j]+"\n")
+        elif len(list_objects) == 2 and j==0:
+            file_models_actions.write(list_objects[j]+" ")
+        else:
+            file_models_actions.write(list_objects[j]+"\n")
+
+########################### write models relations ####################   --------------> edit after finish
+for i in range(0,len(relations_models)):
+    file_models_relations.write(relations_models[i][0]+" "+relations_models[i][1]+" "+relations_models[i][2]+"\n")
 
 
-#input_text = 'There was an old owl that lived in an oak. Yesterday he saw a boy helping an old man to carry a heavy basket. Today he saw a girl shouting at her mother'
-
-#input_text = "There is a Room with a Table and a Fork . There is a red Chair to the right of the Table"
-#input_text = "There is a Computer in a Room"
-
-#input_text = 'There was an old owl that lived in an oak. Yesterday he saw a boy helping an old man to carry a heavy basket. Today he saw a girl shouting at her mother'
-
-input_text = "John drunk a juice in a coffee. John and alice eat some food in a resturant. John played football."
-objects=detect_Obj(input_text)
-objects_relations=Objs_relations(input_text)
-models_actions = extract_models_actions(input_text)
-
-dep_parsing(objects,input_text)
-
-print("objects are : ",objects)
-print("objects_relations : ",objects_relations)
-print("models_actions : ",models_actions)
 #print(support_inference(objects))
 
