@@ -16,24 +16,22 @@ input_text = file_input_text.read()
 #print(input_text)
 #input_text = "There is an old , tall and smart gentleman in a room. He has a small white cat and he carries it. There is a small black table behind a huge red chair. There is a black laptop to the right of a large brown bed."
 
+
 ################################################################################
 
-char_models=extract_models_char(input_text)
+models_info=extract_models_char(input_text)
 relations_models=Objs_relations(input_text)
 model_actions =extract_models_actions(input_text)
 
+########################### write model chars ######################
+for i in range(0,len(models_info)):
+    current_model_name = models_info[i][1]
+    current_model_chars = models_info[i][2]
+    file_models_char.write(current_model_name + " ")
+    for j in range(0, len(current_model_chars)):
+        file_models_char.write(str(current_model_chars[j]) + " ")
 
-########################### write model chars ######################      -------------> edit after finish
-list_keys = list(char_models.keys())
-for i in range(0,len(char_models)):
-    current_model_name = list_keys[i]
-    current_model_chars= char_models[current_model_name]
-    file_models_char.write(current_model_name+" ")
-    for j in range(0,len(current_model_chars)):
-        if j < len(current_model_chars)-1 :
-            file_models_char.write(str(current_model_chars[j])+" ")
-        else:
-            file_models_char.write(str(current_model_chars[j])+"\n")
+    file_models_char.write(str(models_info[i][3]) + "\n")
 
 ########################## write model actions #######################   --------------> edit after finish
 for i in range(0,len(model_actions)):
