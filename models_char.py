@@ -1,10 +1,13 @@
 import spacy
 from spacy import displacy
 from colour import Color
+from nltk.stem import WordNetLemmatizer
 import neuralcoref
 
 nlp = spacy.load('en')
 neuralcoref.add_to_pipe(nlp)
+
+lemmatizer = WordNetLemmatizer()
 
 
 # human age(small(default),old) hair(default(none)) tall(default(1 -> meduim) , 0->short , 2->tall)
@@ -23,13 +26,18 @@ man_woman_synonymy=['teacher','doctor']
 tall_synonymy = ['tall','lanky','soaring','giant','lofty']
 short_synonymy = ['short','little','tiny','shortened','stumpy','scrubby','squabby']
 old_synonymy = ['old','aged','elderly','senile','antiquated','ancient']
-########################################################
+#########################################################
+
+############ Available model(non humans) ################
+models_avail = ['bed','chair','ball','plate','food','TV','table','bat','box','computer','laptop','car','bottle','cup','couch','toy','knife','sword','desk','piano','gun']
 
 ########### Model features ##############################
 big_synonymy = ['big','large','massive','enormous','huge','gigantic','sizable','tremendous','colossal','immense']
 small_synonymy = ['small','little','tiny']
 
 ##########################################################
+determiners_newObject = ['a','an','another']
+determiners_oldObject = ['the']
 
 ######################### check_color  return true if it is a valid color name otherwise return false ######################
 def check_color(color):
@@ -57,20 +65,51 @@ def get_coref (input_text):
 def extract_models_char(input_text):
 
     object_coref = get_coref(input_text)
-    #print(object_coref)
+    print(object_coref)
 
     doc = nlp(input_text)
 
-    model_chars = {}
+
+    unique_id = 1         # auto increment id
+    model_full_info=[]    # actual model name(in text) , origin model name (in database) , model chars , unique id
+
+    #model_chars = {}
 
     for sent in doc.sents:
         for word in sent:
             if word.pos_ == "NOUN":
 
+                num_same_objects = 1  ################## ---------------------------- what is the max num of objects ?
+                root_word = lemmatizer.lemmatize(str(word))
+
+                ####################  detect num of same objects #####################   -----------> what is the max no. of objects ??
+                for child in word.children:
+
+                    if child.dep_ == "nummod":
+                        if str(child) == "two":
+                            print("two" , root_word)
+                            num_same_objects = 2
+                        elif str(child) == "three":
+                            num_same_objects = 3
+                        elif str(child) == "four":
+                            num_same_objects = 4
+                        elif str(child) == "five":
+                            num_same_objects = 5
+                        elif str(child) == "six":
+                            num_same_objects = 6
+                        elif str(child) == "seven":
+                            num_same_objects = 7
+                        elif str(child) == "eight":
+                            num_same_objects = 8
+                        elif str(child) == "nine":
+                            num_same_objects = 9
+                        else:
+                            num_same_objects = 10   ################################### consider max is 10
+
                 #################### detect model type ##############################
                 model_type = ""
                 ##### 1- check if human
-                current_model = (str(word)).lower()
+                current_model = root_word.lower()
                 if current_model in boy_synonymy:
                     model_type = "boy"
                 elif current_model in girl_synonymy:
@@ -118,7 +157,12 @@ def extract_models_char(input_text):
                 #### 2- not human
 
                 else:
-                    model_type=str(word)
+                    if root_word in models_avail:
+                        print("not human")
+                        model_type = root_word
+                    else:
+                        continue
+
 
                 ########################################################################################
 
@@ -171,6 +215,7 @@ def extract_models_char(input_text):
                                 object_chars[1] = 0
 
                             elif check_color(str(child)):
+                                print("color")
                                 is_color = True
                                 object_chars[0] = str(child)
 
@@ -214,8 +259,30 @@ def extract_models_char(input_text):
                     if (  (  (is_tall or is_short) and is_old) or  ( (is_big or is_small) and is_color) ):       #edit --> add new features
                         break
 
+                #check if it is a new object or not
+                is_newObject = False
+                if word.head.pos_ == "VERB" and str(word.head) == "are" :
+                    for verb_child in word.head.children :
+                        if verb_child.dep_ == "expl":
+                            is_newObject= True
+                else:
+                    for each_child in word.children:
+                        if each_child.dep_ == "det":
+                            if str(each_child) in determiners_newObject:
+                                is_newObject = True
 
-                model_chars[model_type] = object_chars
 
-    return model_chars
+                if(is_newObject):
+                    for i in range(0,num_same_objects):
+                        model_full_info.append([str(word), model_type, object_chars, unique_id])
+                        unique_id = unique_id + 1
 
+
+
+    return model_full_info
+
+
+
+#print(extract_models_char("There is a tall and old teacher.He is happy. There is a red and huge box."))
+#print(extract_models_char("There is a red box. There is a green box. The red box is on a black table."))
+#print(extract_models_char("There are two red huge boxes and there is another green box."))
