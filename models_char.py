@@ -87,7 +87,6 @@ def extract_models_char(input_text):
 
                     if child.dep_ == "nummod":
                         if str(child) == "two":
-                            print("two" , root_word)
                             num_same_objects = 2
                         elif str(child) == "three":
                             num_same_objects = 3
@@ -158,7 +157,6 @@ def extract_models_char(input_text):
 
                 else:
                     if root_word in models_avail:
-                        print("not human")
                         model_type = root_word
                     else:
                         continue
@@ -215,7 +213,6 @@ def extract_models_char(input_text):
                                 object_chars[1] = 0
 
                             elif check_color(str(child)):
-                                print("color")
                                 is_color = True
                                 object_chars[0] = str(child)
 
