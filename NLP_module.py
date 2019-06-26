@@ -20,7 +20,7 @@ input_text = file_input_text.read()
 ################################################################################
 
 models_info=extract_models_char(input_text)
-relations_models=Objs_relations(input_text)
+relations_models=Objs_relations(input_text,models_info)
 model_actions =extract_models_actions(input_text)
 
 ########################### write model chars ######################
@@ -46,9 +46,12 @@ for i in range(0,len(model_actions)):
         else:
             file_models_actions.write(list_objects[j]+"\n")
 
-########################### write models relations ####################   --------------> edit after finish
+########################### write models relations ####################
 for i in range(0,len(relations_models)):
-    file_models_relations.write(relations_models[i][0]+" "+relations_models[i][1]+" "+relations_models[i][2]+"\n")
+    file_models_relations.write(relations_models[i][0]+" "+relations_models[i][1]+" "+str(relations_models[i][2])+" "+relations_models[i][3]+" "+str(relations_models[i][4])+"\n")
+
+
+
 
 
 #print(support_inference(objects))
