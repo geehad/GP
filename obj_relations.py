@@ -1,59 +1,19 @@
 import spacy
 from spacy import displacy
 from colour import Color
+from nltk.stem import WordNetLemmatizer
+import models_char
 import re
 
 nlp = spacy.load('en')
 
+lemmatizer = WordNetLemmatizer()
 
 
-#############################################################################################################
-boy_synonymy =['boy','guy','son','brother']
-girl_synonymy =['girl','daughter']
-boy_girl_synonymy=['child','kid','infant','toddler']
+################################################################################################
+rel_avail = ['in','on','behind','front','right','left']
+################################################################################################
 
-man_synonymy =['man','father','husband','gentleman']
-woman_synonymy=['woman','lady','mother','wife','gentlewoman']
-man_woman_synonymy=['teacher','doctor']
-
-############ human features #############################
-tall_synonymy = ['tall','lanky','soaring','giant','lofty']
-short_synonymy = ['short','little','tiny','shortened','stumpy','scrubby','squabby']
-old_synonymy = ['old','aged','elderly','senile','antiquated','ancient']
-#########################################################
-
-############ Available model(non humans) ################
-models_avail = ['bed','chair','ball','plate','food','TV','table','bat','box','computer','laptop','car','bottle','cup','couch','toy','knife','sword','desk','piano','gun']
-
-########### Model features ##############################
-big_synonymy = ['big','large','massive','enormous','huge','gigantic','sizable','tremendous','colossal','immense']
-small_synonymy = ['small','little','tiny']
-
-##########################################################
-
-####################### get_coref   return corefernce of each noun in the input text ########################
-
-def get_coref (input_text):
-
-    doc = nlp(input_text)
-    object_coref =[]
-    for token in doc:
-        if token.pos_ == 'PRON' and token._.in_coref:
-            for cluster in token._.coref_clusters:
-                object_coref.append((str(cluster.main.text).split()[-1],str(token.text).lower()))
-
-    return object_coref
-
-#############################################################################################################
-
-######################### check_color  return true if it is a valid color name otherwise return false ######################
-def check_color(color):
-    try:
-        Color(color)
-        return True
-    except ValueError:
-        return False
-##############################################################################################################
 
 def get_model_id (models_info,model_name,model_char):
     model_id = -1
@@ -84,7 +44,7 @@ def get_model_id (models_info,model_name,model_char):
 def Objs_relations(input_text,models_fullInfo):
 
 
-    object_coref = get_coref(input_text)
+    object_coref = models_char.get_coref(input_text)
     #print(object_coref)
 
     doc = nlp(input_text)
@@ -99,7 +59,7 @@ def Objs_relations(input_text,models_fullInfo):
             pnoun_id = -1
             pobj_id = -1
 
-            if word.pos_ == "ADP":
+            if word.pos_ == "ADP" and (str(word) in rel_avail )and (  (str(word.head.pos_) != "VERB") or (lemmatizer.lemmatize(str(word.head),'v') == "be" )):   #make sure that it isn't a prep with a verb
 
                 pnoun_word = word
                 pobj_word = word
@@ -122,7 +82,7 @@ def Objs_relations(input_text,models_fullInfo):
 
                     if current_word.head.dep_ == "acl":
                         pnoun = str(current_word.head.head)
-                        pnoun_word=child
+                        pnoun_word=current_word.head.head
                         print("pnoun_word 1",pnoun_word)
                     else:
                         for child in children_verb:
@@ -143,15 +103,15 @@ def Objs_relations(input_text,models_fullInfo):
                 model_type = ""
                 ##### 1- check if human
                 current_model = str(pnoun_word).lower()
-                if current_model in boy_synonymy:
+                if current_model in models_char.boy_synonymy:
                     model_type = "boy"
-                elif current_model in girl_synonymy:
+                elif current_model in models_char.girl_synonymy:
                     model_type = "girl"
-                elif current_model in man_synonymy:
+                elif current_model in models_char.man_synonymy:
                     model_type = "man"
-                elif current_model in woman_synonymy:
+                elif current_model in models_char.woman_synonymy:
                     model_type = "woman"
-                elif current_model in boy_girl_synonymy:  # law mfesh coref , eh el default ???
+                elif current_model in models_char.boy_girl_synonymy:  # law mfesh coref , eh el default ???
                     found_coref = False
                     for i in range(0, len(object_coref)):
                         if current_model == object_coref[i][0]:
@@ -169,7 +129,7 @@ def Objs_relations(input_text,models_fullInfo):
                     if (not found_coref):
                         model_type = "boy"  # -----------------> default is boy
 
-                elif current_model in man_woman_synonymy:  # law mfesh coref , eh el default ???
+                elif current_model in models_char.man_woman_synonymy:  # law mfesh coref , eh el default ???
                     found_coref = False
                     for i in range(0, len(object_coref)):
                         if current_model == object_coref[i][0]:
@@ -190,7 +150,7 @@ def Objs_relations(input_text,models_fullInfo):
                 #### 2- not human
 
                 else:
-                    if str(pnoun_word) in models_avail:
+                    if str(pnoun_word) in models_char.models_avail:
                         model_type = str(pnoun_word)
                     else:
                         continue
@@ -227,27 +187,27 @@ def Objs_relations(input_text,models_fullInfo):
                         ## 1- check if human
                         if (
                                 model_type == 'boy' or model_type == 'girl' or model_type == 'man' or model_type == 'woman'):
-                            if str(child) in tall_synonymy:
+                            if str(child) in models_char.tall_synonymy:
                                 is_tall = True
                                 object_chars[2] = 2
-                            elif str(child) in short_synonymy:
+                            elif str(child) in models_char.short_synonymy:
                                 is_short = True
                                 object_chars[2] = 0
 
-                            elif str(child) in old_synonymy:
+                            elif str(child) in models_char.old_synonymy:
                                 is_old = True
                                 object_chars[0] = 1
 
                         ## 2- not human
                         else:
-                            if str(child) in big_synonymy:
+                            if str(child) in models_char.big_synonymy:
                                 is_big = True
                                 object_chars[1] = 2
-                            elif str(child) in small_synonymy:
+                            elif str(child) in models_char.small_synonymy:
                                 is_small = True
                                 object_chars[1] = 0
 
-                            elif check_color(str(child)):
+                            elif models_char.check_color(str(child)):
                                 is_color = True
                                 object_chars[0] = str(child)
 
@@ -265,27 +225,27 @@ def Objs_relations(input_text,models_fullInfo):
                             ## 1- check if human
                             if (
                                     model_type == 'boy' or model_type == 'girl' or model_type == 'man' or model_type == 'woman'):
-                                if str(child) in tall_synonymy:
+                                if str(child) in models_char.tall_synonymy:
                                     is_tall = True
                                     object_chars[2] = 2
 
-                                elif str(child) in short_synonymy:
+                                elif str(child) in models_char.short_synonymy:
                                     is_short = True
                                     object_chars[2] = 0
 
-                                elif str(child) in old_synonymy:
+                                elif str(child) in models_char.old_synonymy:
                                     is_old = True
                                     object_chars[0] = 1
 
                             ## 2- not human
                             else:
-                                if str(child) in big_synonymy:
+                                if str(child) in models_char.big_synonymy:
                                     is_big = True
                                     object_chars[1] = 2
-                                elif str(child) in small_synonymy:
+                                elif str(child) in models_char.small_synonymy:
                                     is_small = True
                                     object_chars[1] = 0
-                                elif check_color(str(child)):
+                                elif models_char.check_color(str(child)):
                                     is_color = True
                                     object_chars[0] = str(child)
 
@@ -316,15 +276,15 @@ def Objs_relations(input_text,models_fullInfo):
                             model_type = ""
                             ##### 1- check if human
                             current_model = str(pobj_word).lower()
-                            if current_model in boy_synonymy:
+                            if current_model in models_char.boy_synonymy:
                                 model_type = "boy"
-                            elif current_model in girl_synonymy:
+                            elif current_model in models_char.girl_synonymy:
                                 model_type = "girl"
-                            elif current_model in man_synonymy:
+                            elif current_model in models_char.man_synonymy:
                                 model_type = "man"
-                            elif current_model in woman_synonymy:
+                            elif current_model in models_char.woman_synonymy:
                                 model_type = "woman"
-                            elif current_model in boy_girl_synonymy:  # law mfesh coref , eh el default ???
+                            elif current_model in models_char.boy_girl_synonymy:  # law mfesh coref , eh el default ???
                                 found_coref = False
                                 for i in range(0, len(object_coref)):
                                     if current_model == object_coref[i][0]:
@@ -342,7 +302,7 @@ def Objs_relations(input_text,models_fullInfo):
                                 if (not found_coref):
                                     model_type = "boy"  # -----------------> default is boy
 
-                            elif current_model in man_woman_synonymy:  # law mfesh coref , eh el default ???
+                            elif current_model in models_char.man_woman_synonymy:  # law mfesh coref , eh el default ???
                                 found_coref = False
                                 for i in range(0, len(object_coref)):
                                     if current_model == object_coref[i][0]:
@@ -363,7 +323,7 @@ def Objs_relations(input_text,models_fullInfo):
                             #### 2- not human
 
                             else:
-                                if str(pobj_word) in models_avail:
+                                if str(pobj_word) in models_char.models_avail:
                                     model_type = str(pobj_word)
                                 else:
                                     continue
@@ -400,27 +360,27 @@ def Objs_relations(input_text,models_fullInfo):
                                     ## 1- check if human
                                     if (
                                             model_type == 'boy' or model_type == 'girl' or model_type == 'man' or model_type == 'woman'):
-                                        if str(child) in tall_synonymy:
+                                        if str(child) in models_char.tall_synonymy:
                                             is_tall = True
                                             object_chars[2] = 2
-                                        elif str(child) in short_synonymy:
+                                        elif str(child) in models_char.short_synonymy:
                                             is_short = True
                                             object_chars[2] = 0
 
-                                        elif str(child) in old_synonymy:
+                                        elif str(child) in models_char.old_synonymy:
                                             is_old = True
                                             object_chars[0] = 1
 
                                     ## 2- not human
                                     else:
-                                        if str(child) in big_synonymy:
+                                        if str(child) in models_char.big_synonymy:
                                             is_big = True
                                             object_chars[1] = 2
-                                        elif str(child) in small_synonymy:
+                                        elif str(child) in models_char.small_synonymy:
                                             is_small = True
                                             object_chars[1] = 0
 
-                                        elif check_color(str(child)):
+                                        elif models_char.check_color(str(child)):
                                             is_color = True
                                             object_chars[0] = str(child)
 
@@ -438,27 +398,27 @@ def Objs_relations(input_text,models_fullInfo):
                                         ## 1- check if human
                                         if (
                                                 model_type == 'boy' or model_type == 'girl' or model_type == 'man' or model_type == 'woman'):
-                                            if str(child) in tall_synonymy:
+                                            if str(child) in models_char.tall_synonymy:
                                                 is_tall = True
                                                 object_chars[2] = 2
 
-                                            elif str(child) in short_synonymy:
+                                            elif str(child) in models_char.short_synonymy:
                                                 is_short = True
                                                 object_chars[2] = 0
 
-                                            elif str(child) in old_synonymy:
+                                            elif str(child) in models_char.old_synonymy:
                                                 is_old = True
                                                 object_chars[0] = 1
 
                                         ## 2- not human
                                         else:
-                                            if str(child) in big_synonymy:
+                                            if str(child) in models_char.big_synonymy:
                                                 is_big = True
                                                 object_chars[1] = 2
-                                            elif str(child) in small_synonymy:
+                                            elif str(child) in models_char.small_synonymy:
                                                 is_small = True
                                                 object_chars[1] = 0
-                                            elif check_color(str(child)):
+                                            elif models_char.check_color(str(child)):
                                                 is_color = True
                                                 object_chars[0] = str(child)
 
@@ -479,6 +439,4 @@ def Objs_relations(input_text,models_fullInfo):
         #displacy.serve(parsed_sentence, style='dep')
 
     return relations
-
-
 
