@@ -9,7 +9,6 @@ neuralcoref.add_to_pipe(nlp)
 
 lemmatizer = WordNetLemmatizer()
 
-
 # human age(small(default),old) hair(default(none)) tall(default(1 -> meduim) , 0->short , 2->tall)
 #model color(default->none)  size(1->meduim , 0->small , 2->big)
 
@@ -29,7 +28,7 @@ old_synonymy = ['old','aged','elderly','senile','antiquated','ancient']
 #########################################################
 
 ############ Available model(non humans) ################
-models_avail = ['bed','chair','ball','plate','food','TV','table','bat','box','computer','laptop','car','bottle','cup','couch','toy','knife','sword','desk','piano','gun']
+models_avail = ['bed','chair','ball','plate','food','television','table','bat','box','computer','laptop','car','bottle','cup','couch','toy','knife','sword','desk','piano','gun','playground','room','street','kitchen']
 
 ########### Model features ##############################
 big_synonymy = ['big','large','massive','enormous','huge','gigantic','sizable','tremendous','colossal','immense']
