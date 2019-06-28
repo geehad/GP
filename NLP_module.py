@@ -21,7 +21,7 @@ input_text = file_input_text.read()
 
 models_info=extract_models_char(input_text)
 relations_models=Objs_relations(input_text,models_info)
-model_actions =extract_models_actions(input_text)
+model_actions =extract_models_actions(input_text,models_info)
 
 ########################### write model chars ######################
 for i in range(0,len(models_info)):
@@ -33,18 +33,10 @@ for i in range(0,len(models_info)):
 
     file_models_char.write(str(models_info[i][3]) + "\n")
 
-########################## write model actions #######################   --------------> edit after finish
+########################## write model actions #######################
+
 for i in range(0,len(model_actions)):
-    file_models_actions.write(model_actions[i][1]+" ")
-    file_models_actions.write(model_actions[i][0]+" ")
-    list_objects = model_actions[i][2]
-    for j in range(0,len(list_objects)):
-        if len(list_objects) == 1:
-            file_models_actions.write(list_objects[j]+"\n")
-        elif len(list_objects) == 2 and j==0:
-            file_models_actions.write(list_objects[j]+" ")
-        else:
-            file_models_actions.write(list_objects[j]+"\n")
+    file_models_actions.write(str(model_actions[i][0])+" "+model_actions[i][1]+" "+str(model_actions[i][2])+" "+str(model_actions[i][3])+" "+str(model_actions[i][4])+" "+str(model_actions[i][5])+"\n")
 
 ########################### write models relations ####################
 for i in range(0,len(relations_models)):
