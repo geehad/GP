@@ -1,0 +1,8 @@
+television black 0 1
+room white 2 2
+boy 0 none 2 3
+man 1 none 0 4
+chair red 2 5
+table brown 0 6
+table black 2 7
+gun black 0 8
