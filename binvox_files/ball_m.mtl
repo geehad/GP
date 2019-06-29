@@ -1,0 +1,38 @@
+# Blender MTL File: 'None'
+# Material Count: 3
+
+newmtl Black
+Ns 49.019608
+Ka 0.588000 0.588000 0.588000
+Kd 0.588000 0.588000 0.588000
+Ks 0.630000 0.630000 0.630000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Leather_Black_albedo.jpg
+map_Bump Leather_Black_normal.jpg
+map_Ka Leather_Black_albedo.jpg
+
+newmtl White
+Ns 49.019608
+Ka 0.588000 0.588000 0.588000
+Kd 0.588000 0.588000 0.588000
+Ks 0.630000 0.630000 0.630000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Leather_White_albedo.jpg
+map_Bump Leather_White_normal.jpg
+map_Ka Leather_White_albedo.jpg
+
+newmtl wire_086086086
+Ns 29.411765
+Ka 0.337300 0.337300 0.337300
+Kd 0.337300 0.337300 0.337300
+Ks 0.350000 0.350000 0.350000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2

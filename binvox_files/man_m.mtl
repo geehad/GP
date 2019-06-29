@@ -1,0 +1,92 @@
+# Blender MTL File: 'None'
+# Material Count: 6
+
+newmtl Bodymat.001
+Ns 200.000000
+Ka 0.040000 0.040000 0.040000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 6
+map_Bump -bm 0.000000 G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Body_Normal.png
+map_Kd G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Body_Diffuse.png
+map_Ks G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Body_Specular.png
+map_Ns G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Body_Gloss.png
+map_d G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Body_Opacity.png
+
+newmtl Bottommat.001
+Ns 200.000000
+Ka 0.040000 0.040000 0.040000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 6
+map_Bump -bm 0.000000 G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Bottom_Normal.png
+map_Kd G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Bottom_Diffuse.png
+map_Ks G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Bottom_Specular.png
+map_Ns G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Bottom_Gloss.png
+map_d G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Bottom_Opacity.png
+
+newmtl Hairmat.001
+Ns 200.000000
+Ka 0.040000 0.040000 0.040000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 6
+map_Bump -bm 0.000000 G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hair_Normal.png
+map_Kd G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hair_Diffuse.png
+map_Ks G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hair_Specular.png
+map_Ns G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hair_Gloss.png
+map_d G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hair_Opacity.png
+
+newmtl Hatmat
+Ns 200.000000
+Ka 0.040000 0.040000 0.040000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 6
+map_Bump -bm 0.000000 G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hat_Normal.png
+map_Kd G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hat_Diffuse.png
+map_Ks G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hat_Specular.png
+map_Ns G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hat_Gloss.png
+map_d G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Hat_Opacity.png
+
+newmtl Shoesmat.001
+Ns 200.000000
+Ka 0.040000 0.040000 0.040000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 6
+map_Bump -bm 0.000000 G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Shoes_Normal.png
+map_Kd G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Shoes_Diffuse.png
+map_Ks G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Shoes_Specular.png
+map_Ns G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Shoes_Gloss.png
+map_d G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Shoes_Opacity.png
+
+newmtl Topmat.001
+Ns 200.000000
+Ka 0.040000 0.040000 0.040000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 6
+map_Bump -bm 0.000000 G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Top_Normal.png
+map_Kd G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Top_Diffuse.png
+map_Ks G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Top_Specular.png
+map_Ns G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Top_Gloss.png
+map_d G:\\college\\4th_year\\1st_term\\Machine Intelligence\\home\\app\\mixamo-mini\\tmp\\skins_4a6bc638-fdae-4c7d-bdf4-193cf98c6046.fbm\\Malcom_Top_Opacity.png
