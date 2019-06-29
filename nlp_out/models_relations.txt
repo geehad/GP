@@ -1,0 +1,4 @@
+in television 1 room 2
+behind table 6 chair 5
+behind chair 5 table 7
+on ball 8 table 7
