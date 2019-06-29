@@ -2,7 +2,7 @@ from models_char import extract_models_char
 from obj_relations import Objs_relations
 from model_actions import extract_models_actions
 from Scene_Inference import support_inference
-
+from Sequence import *
 ####################### files for the following modules ###########################
 file_models_char = open("models_char.txt", "w")
 file_models_actions = open("model_actions.txt", "w")
@@ -22,8 +22,9 @@ input_text = file_input_text.read()
 models_info=extract_models_char(input_text)
 relations_models=Objs_relations(input_text,models_info)
 model_actions =extract_models_actions(input_text,models_info)
-
+sequence(input_text)
 ########################### write model chars ######################
+
 for i in range(0,len(models_info)):
     current_model_name = models_info[i][1]
     current_model_chars = models_info[i][2]
@@ -47,4 +48,3 @@ for i in range(0,len(relations_models)):
 
 
 #print(support_inference(objects))
-
