@@ -15,7 +15,7 @@ object_coref_list =[]
 
 #################### action_category ####################
 verb_noObject = ['dance']                                   #cat_num =1
-verb_prep = ['walk','walk','sit','sleep','play']            #cat_num=2
+verb_prep = ['walk','move','sit','sleep','play']            #cat_num=2
 verb_oneObject= ['carry','eat','push']                      #cat_num=3
 verb_twoObject= ['shoot']                                   #cat_num=4
 
@@ -45,32 +45,41 @@ def get_model_id (models_info,model_name,model_char):
 
     return model_id
 
-####################################parsed_origin_senstence= nlp("John and mary drink in a coffee some juice")   --> drink is NOUN ??????
 
-def count_PRON(input_text):
-    count_pron = 0
-    tokinized_sentences = input_text.split('.')
-    for sentence in tokinized_sentences:
-        parsed_sentence = nlp(sentence)
-        for word in parsed_sentence:
-            if word.pos_ == "PRON":
-                count_pron += 1
-
-    return  count_pron
-
-##################################################################################################
-def get_objectCoref_map(input_text):  ################################################################ zai ma maktoob msh bageeb el lower wla 7aga 3shan law htt3dl
+def get_objectCoref_map(input_text):
 
     doc=nlp(input_text)
     for i in range(0, len(doc._.coref_clusters)):
         clusters_coref = doc._.coref_clusters
         object_coref = doc._.coref_clusters[i].mentions[-1]._.coref_cluster.main
 
-        for j in range(1, len(clusters_coref[i])):
-            object_coref_list.append((object_coref, clusters_coref[i][j]))
+        #print("before object_coref : ",object_coref)
+
+        object_coref_lst = str(object_coref).split(" ")
+
+        if str(object_coref_lst[0]).lower() == "the":
+            #print("Enter coref ")
+            object_coref_lst[0] = "a"
+            object_coref = ' '.join(object_coref_lst)
+
+        #print("after object_coref : ", object_coref)
+
+        if (str(clusters_coref[i][1]).lower() in models_char.male_pronoun) or (str(clusters_coref[i][1]).lower() in models_char.female_pronoun) or (str(clusters_coref[i][1]).lower() in models_char.rigid_pronoun):
+                #print("enteeeeeeeeeeeeeeeeeer")
+                object_coref_list.append((str(object_coref).lower(), str(clusters_coref[i][1]).lower()))
+                #print("object_coref_list : ",object_coref_list)
+
+
 
 ##################################################################################################
+def get_refrencedObject(pronoun):
 
+    for i in range(0,len(object_coref_list)):
+        print("object_coref_list[i][1] : ",object_coref_list[i][1])
+        if  object_coref_list[i][1] == pronoun:
+            return object_coref_list[i][0]
+
+##################################################################################################
 def detect_object_type (model_name,obj_coref):
     model_type = ""
     ##### 1- check if human
@@ -237,6 +246,8 @@ def extract_models_actions(input_text,models_fullInfo):
 
     get_objectCoref_map(input_text)
 
+    print("object_coref_list : ",object_coref_list)
+
     lemmatizer = WordNetLemmatizer()
     tokinized_sentences = []
     doc = nlp(input_text)
@@ -276,30 +287,39 @@ def extract_models_actions(input_text,models_fullInfo):
                         if child.dep_ == "dobj":
 
                             if child.pos_ == "PRON":
-                                token_index = child.i - sent.start
-                                # print("token value : ", child.text)
-                                # print("token_index : ",token_index)
-                                text_preceding = ""
-                                for i in range(0, sentence_index):
-                                    text_preceding += tokinized_sentences[i]
 
-                                last_sentence = ""
-                                for i in range(0, token_index):
-                                    last_sentence += tokens_in_currentSentence[i] + " "
-                                    if i == token_index - 1:
-                                        last_sentence += "."
+                                obj_pronoun = str(child.text).lower()
+                                print("obj_pronoun : ", obj_pronoun)
 
-                                text_preceding += last_sentence
+                                coref_obj = get_refrencedObject(obj_pronoun)
+                                print("coref_obj : ", coref_obj, "verb : ", verb)
 
-                                # print("text_preceding : ", text_preceding)
-                                no_preceding_pron = count_PRON(text_preceding)
-                                # print("no_preceding_pron : ",no_preceding_pron)
-                                pron_num = no_preceding_pron + 1
-                                # coref = doc._.coref_clusters[pron_num-1].mentions[-1]._.coref_cluster.main
-                                coref = object_coref_list[pron_num - 1][0]
-                                # print("coref : ",coref)
+                                objInfo = models_char.extract_models_char(coref_obj)
+                                print("objInfo : ", objInfo)
 
-                                #######################objects.append(str(coref))      ---------------------> detect type and char
+                                coref_obj_word = ""
+                                coref_obj_chars = []
+
+                                for i in range(0, len(objInfo)):
+                                    if objInfo[i][1] == 'boy' or objInfo[i][1] == 'man':
+                                        if obj_pronoun in models_char.male_pronoun:
+                                            coref_obj_word = objInfo[i][1]
+                                            coref_obj_chars = objInfo[i][2]
+                                            break
+                                    elif objInfo[i][1] == 'girl' or objInfo[i][1] == 'woman':
+                                        if obj_pronoun in models_char.female_pronoun:
+                                            coref_obj_word = objInfo[i][1]
+                                            coref_obj_chars = objInfo[i][2]
+                                            break
+                                    elif obj_pronoun in models_char.rigid_pronoun:
+                                        coref_obj_word = objInfo[i][1]
+                                        coref_obj_chars = objInfo[i][2]
+                                        break
+
+
+                                #print("coref_obj_word : ", coref_obj_word)
+                                #print("coref_obj_chars : ", coref_obj_chars)
+                                obj1_id = get_model_id(models_fullInfo, coref_obj_word, coref_obj_chars)
 
 
                             else:
@@ -312,38 +332,86 @@ def extract_models_actions(input_text,models_fullInfo):
                                 ################################## detect obj_chars ###########################################
                                 object_chars = []
                                 object_chars = detect_object_char(model_type, obj_word)
-                                print(str(obj_word), object_chars)
+                                #print(str(obj_word), object_chars)
                                 obj1_id = get_model_id(models_fullInfo, str(obj_word), object_chars)
 
-                if (verb in verb_prep) or (verb in verb_twoObject):
+                if (verb in verb_prep) or (verb in verb_twoObject):    #----------------------> add coref
 
 
                     for child in word.children:
 
                         if child.dep_ == "prep":
-                            print("Enter prep :" , str(child))
+                            #print("Enter prep :" , str(child))
                             current_word = child
                             for child_current_word in current_word.children:
                                 if child_current_word.dep_ == "pobj":
 
-                                    obj_word = child_current_word
+                                    #print("Enter pobj for prep")
+                                    if child_current_word.pos_ == "PRON":
 
-                                    ################################## detect object type ####################################
-                                    model_type, object_coref = detect_object_type(str(obj_word), object_coref)
-                                    if model_type == 'none':
-                                        continue
-                                    ################################## detect obj_chars ###########################################
-                                    object_chars = []
-                                    object_chars = detect_object_char(model_type, obj_word)
-                                    print(str(obj_word), object_chars)
-                                    obj_id = get_model_id(models_fullInfo, str(obj_word), object_chars)
+                                        obj_pronoun = str(child_current_word.text).lower()
+                                        print("obj_pronoun : ", obj_pronoun)
 
-                                    if verb in verb_twoObject:
-                                        print("enter prep verb_twoObject : ",verb)
-                                        obj2_id=obj_id
-                                    else:
-                                        obj1_id = obj_id
+                                        coref_obj = get_refrencedObject(obj_pronoun)
+                                        print("coref_obj : ", coref_obj, "verb : ", verb)
 
+                                        objInfo = models_char.extract_models_char(coref_obj)
+                                        print("objInfo : ", objInfo)
+
+                                        coref_obj_word = ""
+                                        coref_obj_chars = []
+
+                                        for i in range(0, len(objInfo)):
+                                            if objInfo[i][1] == 'boy' or objInfo[i][1] == 'man':
+                                                if obj_pronoun in models_char.male_pronoun:
+                                                    coref_obj_word = objInfo[i][1]
+                                                    coref_obj_chars = objInfo[i][2]
+                                                    break
+                                            elif objInfo[i][1] == 'girl' or objInfo[i][1] == 'woman':
+                                                if obj_pronoun in models_char.female_pronoun:
+                                                    coref_obj_word = objInfo[i][1]
+                                                    coref_obj_chars = objInfo[i][2]
+                                                    break
+                                            elif obj_pronoun in models_char.rigid_pronoun:
+                                                coref_obj_word = objInfo[i][1]
+                                                coref_obj_chars = objInfo[i][2]
+                                                break
+
+                                        #print("coref_obj_word : ", coref_obj_word)
+                                        #print("coref_obj_chars : ", coref_obj_chars)
+                                        obj_id = get_model_id(models_fullInfo, coref_obj_word, coref_obj_chars)
+
+                                        if verb in verb_twoObject:
+                                            #print("enter prep verb_twoObject : ",verb)
+                                            obj2_id = obj_id
+                                        else:
+                                            #print("enter prep verb_prep : ", verb)
+                                            obj1_id = obj_id
+                                            #print("obj1_id : ", obj1_id)
+
+
+                                    else :
+
+                                        obj_word = child_current_word
+
+                                        ################################## detect object type ####################################
+                                        model_type, object_coref = detect_object_type(str(obj_word), object_coref)
+                                        if model_type == 'none':
+                                            continue
+                                        ################################## detect obj_chars ###########################################
+                                        object_chars = []
+                                        object_chars = detect_object_char(model_type, obj_word)
+                                        # print(str(obj_word), object_chars)
+                                        obj_id = get_model_id(models_fullInfo, str(obj_word), object_chars)
+
+                                        if verb in verb_twoObject:
+                                            # print("enter prep verb_twoObject : ",verb)
+                                            obj2_id = obj_id
+                                        else:
+                                            obj1_id = obj_id
+
+
+                #print("obj1_id : ",obj1_id)
                 ############################################## find sujects ###############################################
                 for child in word.children:
                     ######### first subject ###############
@@ -351,32 +419,53 @@ def extract_models_actions(input_text,models_fullInfo):
                         ###### check if it is a PRON , then get its coreference , otherwise put it as it is ######
                         ### get the num of pronouns preceding it from the start
                         if child.pos_ == "PRON":
-                            token_index = child.i-sent.start
-                            #print("token value : ", child.text)
-                            #print("token_index : ",token_index)
-                            text_preceding = ""
-                            for i in range(0, sentence_index):
-                                text_preceding += tokinized_sentences[i]
 
-                            last_sentence = ""
-                            for i in range(0, token_index):
-                                last_sentence += tokens_in_currentSentence[i] + " "
-                                if i == token_index - 1:
-                                    last_sentence += "."
+                            subj_pronoun = str(child.text).lower()
+                            print("subj_pronoun : ", subj_pronoun)
 
-                            text_preceding += last_sentence
+                            coref_subj = get_refrencedObject(subj_pronoun)
+                            print("coref_subj : ",coref_subj,"verb : ",verb)
 
-                            #print("text_preceding : ", text_preceding)
-                            no_preceding_pron = count_PRON(text_preceding)
-                            #print("no_preceding_pron : ",no_preceding_pron)
-                            pron_num = no_preceding_pron + 1
-                            #coref = doc._.coref_clusters[pron_num-1].mentions[-1]._.coref_cluster.main
-                            coref = object_coref_list[pron_num-1][0]
-                            #print("coref : ",coref,"verb : ",verb)
+                            subjInfo = models_char.extract_models_char(coref_subj)
+                            print("subjInfo : ", subjInfo)
 
-                            subj = str(coref)
-                            ##############################action = (verb, subj, objects)      ----------> to do handle
-                            ##############################models_actions.append(action)
+
+                            coref_subj_word = ""
+                            coref_subj_chars= []
+
+                            for i in range (0,len(subjInfo)):
+                                if subjInfo[i][1] == 'boy' or subjInfo[i][1] == 'man':
+                                    if subj_pronoun in models_char.male_pronoun:
+                                        coref_subj_word = subjInfo[i][1]
+                                        coref_subj_chars = subjInfo[i][2]
+                                        break
+                                    elif subjInfo[i][1] == 'girl' or subjInfo[i][1] == 'woman':
+                                        if subj_pronoun in models_char.female_pronoun:
+                                            coref_subj_word = subjInfo[i][1]
+                                            coref_subj_chars = subjInfo[i][2]
+                                            break
+                                    elif subj_pronoun in models_char.rigid_pronoun:
+                                        coref_subj_word = subjInfo[i][1]
+                                        coref_subj_chars = subjInfo[i][2]
+                                        break
+
+                            #print("subj_word : ",coref_subj_word)
+                            #print("subj_chars : ",coref_subj_chars)
+                            coref_subj_id = get_model_id(models_fullInfo, coref_subj_word, coref_subj_chars)
+
+                            ################################# Add a new action to action list #######################
+
+                            # action --> cat_num,verb_name,subj_id,obj1_id,obj2_id,action_pos
+                            if verb in verb_noObject:
+                                action = (1, verb, coref_subj_id, obj1_id, obj2_id, word.i)
+                            elif verb in verb_prep:
+                                action = (2, verb, coref_subj_id, obj1_id, obj2_id, word.i)
+                            elif verb in verb_oneObject:
+                                action = (3, verb, coref_subj_id, obj1_id, obj2_id, word.i)
+                            else:
+                                action = (4, verb, coref_subj_id, obj1_id, obj2_id, word.i)
+
+                            models_actions.append(action)
 
                         else:
 
@@ -388,7 +477,7 @@ def extract_models_actions(input_text,models_fullInfo):
                             ################################# find subj chars #######################################
                             object_chars = []
                             object_chars = detect_object_char(model_type, subj_word)
-                            print(str(subj_word), object_chars)
+                            #print("subject : ",str(subj_word), object_chars)
                             subj_id = get_model_id(models_fullInfo,str(subj_word), object_chars)
 
                             ################################# Add a new action to action list #######################
@@ -424,6 +513,14 @@ models_info.append(['gun','gun',['black',1],9])"""
 
 
 
-
 #print(extract_models_actions("There is an old tall man. There is a huge green box. The tall man walks towards the green box.",models_info))
 #print(extract_models_actions("The short man shoots the boy with a black gun.",models_info))
+#print(extract_models_actions("There is an old , tall and smart gentleman in a room. He walks towards a red chair.",models_info))
+#print(extract_models_actions("There is a green box. A tall boy carries it.",models_info))
+#print(extract_models_actions("There is a red chair. A tall boy walks towards it.",models_info))
+#print(extract_models_actions("There is a red chair.There is a tall boy. he walks towards it. he carries a green box.",models_info))
+#print(extract_models_actions("There is a tall boy. There is an old man. There is a black gun. He shot him with it.",models_info))
+#print(extract_models_actions("The boy moves towards the red chair and then he sits on it.",models_info))
+
+
+
