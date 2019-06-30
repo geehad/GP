@@ -1,2 +1,2 @@
-# GP_NLP
-NLP module for my graduation project
+# GP
+It is a software application that takes short stories as input text and generates animated 3d video
