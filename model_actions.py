@@ -270,8 +270,11 @@ def extract_models_actions(input_text,models_fullInfo):
             tokens_in_currentSentence.append(str(word))
 
             verb = subj = obj = ""
+            print("----------- verb : ", verb)
             if word.pos_ == "VERB" and  ((lemmatizer.lemmatize(str(word), 'v') in verb_noObject ) or (lemmatizer.lemmatize(str(word), 'v') in verb_prep) or (lemmatizer.lemmatize(str(word), 'v') in verb_oneObject) or (lemmatizer.lemmatize(str(word), 'v') in verb_twoObject) ):
                 verb = lemmatizer.lemmatize(str(word), 'v')
+
+                print("****** verb : ",verb)
 
                 obj_word = word
                 subj_word = word
@@ -411,89 +414,144 @@ def extract_models_actions(input_text,models_fullInfo):
                                             obj1_id = obj_id
 
 
-                #print("obj1_id : ",obj1_id)
-                ############################################## find sujects ###############################################
+                 #print("obj1_id : ",obj1_id)
+                ############################################## find subjects ###############################################
+
+                found_subj = False
+
+                print ("Verb : ",str(word))
                 for child in word.children:
                     ######### first subject ###############
                     if child.dep_ == "nsubj":
-                        ###### check if it is a PRON , then get its coreference , otherwise put it as it is ######
-                        ### get the num of pronouns preceding it from the start
-                        if child.pos_ == "PRON":
 
-                            subj_pronoun = str(child.text).lower()
-                            print("subj_pronoun : ", subj_pronoun)
+                        print("find subject")
 
-                            coref_subj = get_refrencedObject(subj_pronoun)
-                            print("coref_subj : ",coref_subj,"verb : ",verb)
+                        found_subj = True
 
-                            subjInfo = models_char.extract_models_char(coref_subj)
-                            print("subjInfo : ", subjInfo)
+                        found_conjSubject = True
+                        current_subject = child
 
+                        while found_conjSubject :
 
-                            coref_subj_word = ""
-                            coref_subj_chars= []
+                            ###### check if it is a PRON , then get its coreference , otherwise put it as it is ######
+                            ### get the num of pronouns preceding it from the start
+                            if current_subject.pos_ == "PRON":
 
-                            for i in range (0,len(subjInfo)):
-                                if subjInfo[i][1] == 'boy' or subjInfo[i][1] == 'man':
-                                    if subj_pronoun in models_char.male_pronoun:
-                                        coref_subj_word = subjInfo[i][1]
-                                        coref_subj_chars = subjInfo[i][2]
-                                        break
-                                    elif subjInfo[i][1] == 'girl' or subjInfo[i][1] == 'woman':
-                                        if subj_pronoun in models_char.female_pronoun:
+                                subj_pronoun = str(current_subject.text).lower()
+                                print("subj_pronoun : ", subj_pronoun)
+
+                                coref_subj = get_refrencedObject(subj_pronoun)
+                                print("coref_subj : ", coref_subj, "verb : ", verb)
+
+                                subjInfo = models_char.extract_models_char(coref_subj)
+                                print("subjInfo : ", subjInfo)
+
+                                coref_subj_word = ""
+                                coref_subj_chars = []
+
+                                for i in range(0, len(subjInfo)):
+                                    if subjInfo[i][1] == 'boy' or subjInfo[i][1] == 'man':
+                                        if subj_pronoun in models_char.male_pronoun:
                                             coref_subj_word = subjInfo[i][1]
                                             coref_subj_chars = subjInfo[i][2]
                                             break
-                                    elif subj_pronoun in models_char.rigid_pronoun:
-                                        coref_subj_word = subjInfo[i][1]
-                                        coref_subj_chars = subjInfo[i][2]
+                                        elif subjInfo[i][1] == 'girl' or subjInfo[i][1] == 'woman':
+                                            if subj_pronoun in models_char.female_pronoun:
+                                                coref_subj_word = subjInfo[i][1]
+                                                coref_subj_chars = subjInfo[i][2]
+                                                break
+                                        elif subj_pronoun in models_char.rigid_pronoun:
+                                            coref_subj_word = subjInfo[i][1]
+                                            coref_subj_chars = subjInfo[i][2]
+                                            break
+
+                                # print("subj_word : ",coref_subj_word)
+                                # print("subj_chars : ",coref_subj_chars)
+                                coref_subj_id = get_model_id(models_fullInfo, coref_subj_word, coref_subj_chars)
+
+                                ################################# Add a new action to action list #######################
+
+                                # action --> cat_num,verb_name,subj_id,obj1_id,obj2_id,action_pos
+                                if verb in verb_noObject:
+                                    action = (1, verb, coref_subj_id, obj1_id, obj2_id, word.i)
+                                elif verb in verb_prep:
+                                    action = (2, verb, coref_subj_id, obj1_id, obj2_id, word.i)
+                                elif verb in verb_oneObject:
+                                    action = (3, verb, coref_subj_id, obj1_id, obj2_id, word.i)
+                                else:
+                                    action = (4, verb, coref_subj_id, obj1_id, obj2_id, word.i)
+
+                                models_actions.append(action)
+
+                            else:
+
+                                subj_word = current_subject
+                                ################################## detect subj type ####################################
+                                model_type, object_coref = detect_object_type(str(subj_word), object_coref)
+                                if model_type == 'none':
+                                    continue
+                                ################################# find subj chars #######################################
+                                object_chars = []
+                                object_chars = detect_object_char(model_type, subj_word)
+                                print("subject : ",str(subj_word), object_chars)
+                                subj_id = get_model_id(models_fullInfo, str(subj_word), object_chars)
+
+                                ################################# Add a new action to action list #######################
+
+                                # action --> cat_num,verb_name,subj_id,obj1_id,obj2_id,action_pos
+                                if verb in verb_noObject:
+                                    action = (1, verb, subj_id, obj1_id, obj2_id, word.i)
+                                elif verb in verb_prep:
+                                    action = (2, verb, subj_id, obj1_id, obj2_id, word.i)
+                                elif verb in verb_oneObject:
+                                    action = (3, verb, subj_id, obj1_id, obj2_id, word.i)
+                                else:
+                                    action = (4, verb, subj_id, obj1_id, obj2_id, word.i)
+
+                                models_actions.append(action)
+
+                                ###### check if there is a conj subject ########
+
+                                found_conjSubject =False
+
+                                for child_subj in current_subject.children:
+                                    if child_subj.dep_ == "conj":
+                                        current_subject = child_subj
+                                        found_conjSubject = True
                                         break
 
-                            #print("subj_word : ",coref_subj_word)
-                            #print("subj_chars : ",coref_subj_chars)
-                            coref_subj_id = get_model_id(models_fullInfo, coref_subj_word, coref_subj_chars)
+                ######################################## if there are conj verbs of the same subject ######################
 
-                            ################################# Add a new action to action list #######################
+                if found_subj == False:
 
-                            # action --> cat_num,verb_name,subj_id,obj1_id,obj2_id,action_pos
-                            if verb in verb_noObject:
-                                action = (1, verb, coref_subj_id, obj1_id, obj2_id, word.i)
-                            elif verb in verb_prep:
-                                action = (2, verb, coref_subj_id, obj1_id, obj2_id, word.i)
-                            elif verb in verb_oneObject:
-                                action = (3, verb, coref_subj_id, obj1_id, obj2_id, word.i)
-                            else:
-                                action = (4, verb, coref_subj_id, obj1_id, obj2_id, word.i)
+                    current_verb = word
 
-                            models_actions.append(action)
+                    while (found_subj) == False and current_verb.head.pos_ == "VERB":
 
-                        else:
+                        current_verb = current_verb.head
 
-                            subj_word = child
-                            ################################## detect subj type ####################################
-                            model_type, object_coref = detect_object_type(str(subj_word), object_coref)
-                            if model_type == 'none':
-                                continue
-                            ################################# find subj chars #######################################
-                            object_chars = []
-                            object_chars = detect_object_char(model_type, subj_word)
-                            #print("subject : ",str(subj_word), object_chars)
-                            subj_id = get_model_id(models_fullInfo,str(subj_word), object_chars)
+                        for child_verb in current_verb.children:
+                            if child_verb.dep_ == "nsubj":
+                                found_subj = True
+                                break
 
-                            ################################# Add a new action to action list #######################
+                    for verb_info in models_actions:
+                        if verb_info[1] == lemmatizer.lemmatize(str(current_verb), 'v'):
+                            subj_id = verb_info[2]
 
-                            # action --> cat_num,verb_name,subj_id,obj1_id,obj2_id,action_pos
-                            if verb in verb_noObject:
-                                action = (1,verb, subj_id, obj1_id,obj2_id,word.i)
-                            elif verb in verb_prep :
-                                action = (2, verb, subj_id, obj1_id, obj2_id,word.i)
-                            elif verb in verb_oneObject:
-                                action = (3, verb, subj_id, obj1_id, obj2_id,word.i)
-                            else:
-                                action = (4, verb, subj_id, obj1_id, obj2_id,word.i)
+                    ################################# Add a new action to action list #######################
 
+                    # action --> cat_num,verb_name,subj_id,obj1_id,obj2_id,action_pos
+                    if verb in verb_noObject:
+                        action = (1, verb, subj_id, obj1_id, obj2_id, word.i)
+                    elif verb in verb_prep:
+                        action = (2, verb, subj_id, obj1_id, obj2_id, word.i)
+                    elif verb in verb_oneObject:
+                        action = (3, verb, subj_id, obj1_id, obj2_id, word.i)
+                    else:
+                        action = (4, verb, subj_id, obj1_id, obj2_id, word.i)
 
-                            models_actions.append(action)
+                    models_actions.append(action)
 
 
     return models_actions
@@ -509,8 +567,8 @@ models_info.append(['man','man',[1,"",2],5])
 models_info.append(['man','man',[1,"",0],6])
 models_info.append(['chair','chair',['red',0],7])
 models_info.append(['boy','boy',[0,"",2],8])
-models_info.append(['gun','gun',['black',1],9])"""
-
+models_info.append(['gun','gun',['black',1],9])
+models_info.append(['girl','girl',[0,"",0],10])"""
 
 
 #print(extract_models_actions("There is an old tall man. There is a huge green box. The tall man walks towards the green box.",models_info))
@@ -521,6 +579,10 @@ models_info.append(['gun','gun',['black',1],9])"""
 #print(extract_models_actions("There is a red chair.There is a tall boy. he walks towards it. he carries a green box.",models_info))
 #print(extract_models_actions("There is a tall boy. There is an old man. There is a black gun. He shot him with it.",models_info))
 #print(extract_models_actions("The boy moves towards the red chair and then he sits on it.",models_info))
-
-
+#print(extract_models_actions("The boy moves towards the red chair and sits on it.",models_info))
+#print(extract_models_actions("The boy moves towards the red chair and sits on it and carries it.",models_info))
+#print(extract_models_actions("The boy is walking towards the red chair.",models_info))
+#print(extract_models_actions("The boy is walking towards the red chair. the old man carries the green box.",models_info))
+#print(extract_models_actions("The boy and the girl together walk towards the red chair.",models_info))
+#print(extract_models_actions("The boy and the man and the girl all walk towards the red chair.",models_info))
 
