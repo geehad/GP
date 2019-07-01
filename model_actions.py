@@ -22,6 +22,9 @@ verb_twoObject= ['shoot']                                   #cat_num=4
 
 #########################################################
 
+count_char = ['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth']
+#########################################################
+
 def get_model_id (models_info,model_name,model_char):
     model_id = -1
 
@@ -145,9 +148,9 @@ def detect_object_char (model_type, model_word):
 
     if (
             model_type == 'boy' or model_type == 'girl' or model_type == 'man' or model_type == 'woman'):
-        object_chars = [-1, "none", -1]  # not mentioned,  not mentioned , not mentioned
+        object_chars = [-1, "none", -1,"none"]  # not mentioned age ,  not mentioned hair color, not mentioned height , copy number (the first,the second .....)
     else:
-        object_chars = ["none", -1]  # not mentioned, not mentioned
+        object_chars = ["none", -1,"none"]  # not mentioned color, not mentioned size , copy number (the first,the second .....)
 
     is_tall = False
     is_short = False
@@ -181,6 +184,8 @@ def detect_object_char (model_type, model_word):
                 elif str(child) in models_char.old_synonymy:
                     is_old = True
                     object_chars[0] = 1
+                elif str(child) in count_char:
+                    object_chars[3]=str(child)
 
             ## 2- not human
             else:
@@ -194,6 +199,8 @@ def detect_object_char (model_type, model_word):
                 elif models_char.check_color(str(child)):
                     is_color = True
                     object_chars[0] = str(child)
+                elif str(child) in count_char:
+                    object_chars[2] = str(child)
 
             current_word = child
 
@@ -270,11 +277,10 @@ def extract_models_actions(input_text,models_fullInfo):
             tokens_in_currentSentence.append(str(word))
 
             verb = subj = obj = ""
-            print("----------- verb : ", verb)
+
             if word.pos_ == "VERB" and  ((lemmatizer.lemmatize(str(word), 'v') in verb_noObject ) or (lemmatizer.lemmatize(str(word), 'v') in verb_prep) or (lemmatizer.lemmatize(str(word), 'v') in verb_oneObject) or (lemmatizer.lemmatize(str(word), 'v') in verb_twoObject) ):
                 verb = lemmatizer.lemmatize(str(word), 'v')
 
-                print("****** verb : ",verb)
 
                 obj_word = word
                 subj_word = word
@@ -404,7 +410,7 @@ def extract_models_actions(input_text,models_fullInfo):
                                         ################################## detect obj_chars ###########################################
                                         object_chars = []
                                         object_chars = detect_object_char(model_type, obj_word)
-                                        # print(str(obj_word), object_chars)
+                                        #print(str(obj_word), object_chars)
                                         obj_id = get_model_id(models_fullInfo, str(obj_word), object_chars)
 
                                         if verb in verb_twoObject:
@@ -557,18 +563,19 @@ def extract_models_actions(input_text,models_fullInfo):
     return models_actions
 
 
-"""models_info = []
+models_info = []
 
-models_info.append(['box','box',['green',2],1])
-models_info.append(['car','car',['black',1],2])
-models_info.append(['computer','computer',['red',2],3])
-models_info.append(['box','box',['green',1],4])
-models_info.append(['man','man',[1,"",2],5])
-models_info.append(['man','man',[1,"",0],6])
-models_info.append(['chair','chair',['red',0],7])
-models_info.append(['boy','boy',[0,"",2],8])
-models_info.append(['gun','gun',['black',1],9])
-models_info.append(['girl','girl',[0,"",0],10])"""
+models_info.append(['box','box',['green',2,'first'],1])
+models_info.append(['car','car',['black',1,'first'],2])
+models_info.append(['computer','computer',['red',2,'first'],3])
+models_info.append(['box','box',['green',1,'first'],4])
+models_info.append(['man','man',[1,"",0,'first'],5])
+models_info.append(['man','man',[1,"",0,'second'],6])
+models_info.append(['chair','chair',['red',0,'first'],7])
+models_info.append(['chair','chair',['red',0,'second'],8])
+models_info.append(['boy','boy',[0,"",2,'first'],9])
+models_info.append(['gun','gun',['black',1,'first'],10])
+models_info.append(['girl','girl',[0,"",0,'first'],11])
 
 
 #print(extract_models_actions("There is an old tall man. There is a huge green box. The tall man walks towards the green box.",models_info))
@@ -584,5 +591,6 @@ models_info.append(['girl','girl',[0,"",0],10])"""
 #print(extract_models_actions("The boy is walking towards the red chair.",models_info))
 #print(extract_models_actions("The boy is walking towards the red chair. the old man carries the green box.",models_info))
 #print(extract_models_actions("The boy and the girl together walk towards the red chair.",models_info))
-#print(extract_models_actions("The boy and the man and the girl all walk towards the red chair.",models_info))
+#print(extract_models_actions("The boy and the man and the girl all walk towards the second red chair.",models_info))
+#print(extract_models_actions("The first short man carries the first red chair.",models_info))
 
