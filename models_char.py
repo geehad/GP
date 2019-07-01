@@ -38,6 +38,13 @@ small_synonymy = ['small','little','tiny']
 determiners_newObject = ['a','an','another']
 determiners_oldObject = ['the']
 
+
+#########################################################
+
+male_pronoun = ['he','him']
+female_pronoun= ['she','her']
+rigid_pronoun=['it']
+
 ######################### check_color  return true if it is a valid color name otherwise return false ######################
 def check_color(color):
     try:
@@ -167,9 +174,9 @@ def extract_models_char(input_text):
                 object_chars = []
 
                 if (model_type == 'boy' or model_type == 'girl' or model_type == 'man' or model_type == 'woman'):
-                    object_chars = [0,"none",1]    # not old, no color of hair , meduim height
+                    object_chars = [-1,"none",-1,"none"]    # not mentioned age, not mentioned hair color , not mentioned height , no.of the same object
                 else:
-                    object_chars = ["none",1]  # no color, meduim size
+                    object_chars = ["none",-1,"none"]  # not mentioned color, not mentioned size , no.of the same object
 
 
                 is_tall = False
@@ -269,8 +276,35 @@ def extract_models_char(input_text):
 
 
                 if(is_newObject):
+                    print("num_same_objects : ",num_same_objects)
                     for i in range(0,num_same_objects):
-                        model_full_info.append([str(word), model_type, object_chars, unique_id])
+
+                        current_chars=list(object_chars)
+
+                        len_object_chars = len(object_chars)
+
+                        if i == 0:
+                            current_chars.append("first")
+                        elif i== 1:
+                            current_chars.append("second")
+                        elif i== 2:
+                            current_chars.append("third")
+                        elif i==3:
+                            current_chars.append("fourth")
+                        elif i==4:
+                            current_chars.append("fifth")
+                        elif i==5 :
+                            current_chars.append("sixth")
+                        elif i==6:
+                            current_chars.append("seventh")
+                        elif i==7:
+                            current_chars.append("eighth")
+                        elif i==8:
+                            current_chars.append("ninth")
+                        elif i==9:
+                            current_chars.append("tenth")
+
+                        model_full_info.append([root_word, model_type, current_chars, unique_id])
                         unique_id = unique_id + 1
 
 
@@ -282,3 +316,4 @@ def extract_models_char(input_text):
 #print(extract_models_char("There is a tall and old teacher.He is happy. There is a red and huge box."))
 #print(extract_models_char("There is a red box. There is a green box. The red box is on a black table."))
 #print(extract_models_char("There are two red huge boxes and there is another green box."))
+#print(extract_models_char("an old , tall and smart gentleman in a room"))
