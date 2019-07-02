@@ -1,0 +1,15 @@
+boy fbx
+man fbx
+girl fbx
+woman fbx
+old_man fbx
+old_woman fbx
+hotdog obj
+ball obj
+playground obj
+street obj
+television obj
+chair obj
+bed obj
+table obj
+room obj

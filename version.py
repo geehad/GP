@@ -8,6 +8,7 @@ from pyevtk.hl import gridToVTK
 objects = [] # [('table', 1), ('hotdog', 1), ('table', 2)]
 relations = []#[('in', ('table', 1), ('room', 1)), ('right', ('table', 2), ('table', 1)),('on', ('hotdog', 1), ('table', 1))]
 dic = {'apple': None}
+files_names = {'apple': None}
 sorted_ob_size = []
 enviro_name = None
 G = None
@@ -19,7 +20,10 @@ def main():
     global sorted_ob_size
     global enviro_name
     global G
-
+	#=================red models files_names ============
+	read_files_names()
+	
+	
     dic.clear()
     #=========================read objects ===========
     file_input_text = open("nlp_out/models_char.txt", "r")
@@ -32,7 +36,11 @@ def main():
         ch=content[entry].split(" ")
         nc=((ch[0],ch[len(ch)-1]))
         objects.append(nc)
-        sizes.append(ch[len(ch)-2])
+		s =' '
+		if (ch[len(ch)-2] == '0'):s ='_s'
+		elif (ch[len(ch)-2] == '1'):s ='_m'
+		elif (ch[len(ch)-2] == '2'):s ='_l'
+        sizes.append(s)
     file_input_text.close()
     print(objects)
     #================read relations===========
@@ -58,6 +66,7 @@ def main():
         element.model = Model.Model(x, y, z, model, height)
         element.tx = element.model.dx + 1
         element.tz = element.model.dz + 1
+		element.size= sizes[index]
         dic[ob] = element
 
     
@@ -97,8 +106,10 @@ def main():
     save_to_vtk(dic[enviro_name].model.matrix, 'new_dimensions')
 
     for puto in sorted_ob_size:
-        print(puto.name,get_real_dimensions(puto))
+      real_x ,real_y ,real_z = get_real_dimensions(puto))
 
+	 write_output_to_file()
+	 
     return
 
 
@@ -603,6 +614,36 @@ def find_base_2():
             
     
       
+    return
+
+
+def read_files_names():
+    global files_names 
+    
+    files_names.clear()
+    file_input_text = open("models_names.txt", "r")
+     
+    input_text = file_input_text.read()
+    content = input_text.split("\n")
+    for entry in range(0,len(content)):
+        ch = content[entry].split(" ")
+        files_names[ch[0] ]= ch[1]
+        
+    file_input_text.close()
+    
+    return
+
+
+
+def write_output_to_file():
+    file_output_text = open("animation/models_intial_positions.txt", "w")
+    for ob in sorted_ob_size:
+        line = ob.name[0] + ob.name.size +'.'+ files_names[ob.name]
+        line+= ' '
+        line += ob.name[1]
+        line += real_x +' '+ real_y+' '+real_z +'\n'
+               
+    
     return
 
 if __name__ == "__main__":

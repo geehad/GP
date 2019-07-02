@@ -111,7 +111,11 @@ class object:
     setteled = 0
     tx = 0
     tz = 0
-
+	size =' '
+	real_x = 0
+	real_y = 0
+	real_z = 0
+	
     def __init__(self, n):
         self.name = n
         self.left = []
