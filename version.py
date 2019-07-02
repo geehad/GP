@@ -3,6 +3,7 @@ import numpy as np
 import Model
 import binvox_rw
 import random
+import math
 from pyevtk.hl import gridToVTK
 
 objects = [] # [('table', 1), ('hotdog', 1), ('table', 2)]
@@ -20,13 +21,13 @@ def main():
     global sorted_ob_size
     global enviro_name
     global G
-	#=================red models files_names ============
-	read_files_names()
-	
-	
+    
+    read_files_names()
+
     dic.clear()
     #=========================read objects ===========
     file_input_text = open("nlp_out/models_char.txt", "r")
+	
 
     input_text = file_input_text.read()
     content = input_text.split("\n")
@@ -36,10 +37,13 @@ def main():
         ch=content[entry].split(" ")
         nc=((ch[0],ch[len(ch)-1]))
         objects.append(nc)
-		s =' '
-		if (ch[len(ch)-2] == '0'):s ='_s'
-		elif (ch[len(ch)-2] == '1'):s ='_m'
-		elif (ch[len(ch)-2] == '2'):s ='_l'
+        s =' '
+        if (ch[len(ch)-2] == '0'):
+            s ='_s'
+        elif (ch[len(ch)-2] == '1'):
+            s ='_m'		
+        elif(ch[len(ch)-2] == '2'):
+            s ='_l'
         sizes.append(s)
     file_input_text.close()
     print(objects)
@@ -60,13 +64,14 @@ def main():
     # ============================load models =========================
     for index,ob in  enumerate(objects):
         element = Model.object(ob)
-        model, height = load_model(ob[0],sizes[index])
+		element.size= sizes[index]
+        model, height = load_model(ob[0]+ element.size,sizes[index])
         model = red_m(model)
         x, y, z = model.shape
         element.model = Model.Model(x, y, z, model, height)
         element.tx = element.model.dx + 1
         element.tz = element.model.dz + 1
-		element.size= sizes[index]
+        
         dic[ob] = element
 
     
@@ -75,7 +80,7 @@ def main():
     sorted_ob_size = sorted(dic.values(), key=sort_model_size, reverse=True)
     enviro_name = sorted_ob_size[0].name
     dic[enviro_name].setteled = 1
-	if( dic[enviro_name].model.dz <dic[enviro_name].model.dx  and dic[enviro_name].model.dz <dic[enviro_name].model.dy ):
+    if( dic[enviro_name].model.dz <dic[enviro_name].model.dx  and dic[enviro_name].model.dz <dic[enviro_name].model.dy ):
         dic[enviro_name].model.modify_dimensions()
    
 
@@ -106,9 +111,9 @@ def main():
     save_to_vtk(dic[enviro_name].model.matrix, 'new_dimensions')
 
     for puto in sorted_ob_size:
-      real_x ,real_y ,real_z = get_real_dimensions(puto))
+        real_x ,real_y ,real_z = get_real_dimensions(puto)
 
-	 write_output_to_file()
+    write_output_to_file()
 	 
     return
 
@@ -153,8 +158,8 @@ def settele_obj(puto):
         ymax=ymin= (ymin+1)
         '''
     if (puto.base[1] == 'on'):
-	
-	    if( dic[puto.base[0]].setteled == 0):
+        
+        if( dic[puto.base[0]].setteled == 0):
             settele_obj( dic[puto.base[0]] )
             
         
@@ -178,12 +183,6 @@ def settele_obj(puto):
              zmax= dic[puto.base[0]].model.max_p[2]  +  puto.model.dz 
 	
 	
-	
-	'''
-        xmin, ymin, zmin = dic[puto.base[0]].model.least_p
-        xmax, ymax, zmax = dic[puto.base[0]].model.max_p
-        ymin = ymax = (ymax + 1)
-		'''
     # ================right and left ===========
     for l in puto.right:
         if (dic[l].setteled == 1):
@@ -287,11 +286,8 @@ def place_model(x, y, z, puto):
         for k in range(y, y + m_p[1] + 1):
             for e in range(z, z + m_p[2] + 1):
                 enviro.matrix[i][k][e] = model.matrix[i - x][k - y][e - z]
-	model.update_terminals(x,y,z)
-	'''
-    model.least_p = [x, y, z]
-    model.max_p = [model.max_p[0] + x, model.max_p[1] + y, model.max_p[2] + z]
-	'''
+    model.update_terminals(x,y,z)
+	
     print(model.max_p)
     enviro.freepixels += (model.shape - model.freepixels)
     dic[puto.name].setteled = 1
@@ -641,7 +637,8 @@ def write_output_to_file():
         line = ob.name[0] + ob.name.size +'.'+ files_names[ob.name]
         line+= ' '
         line += ob.name[1]
-        line += real_x +' '+ real_y+' '+real_z +'\n'
+        line += ob.real_x +' '+ ob.real_y+' '+ ob.real_z +'\n'
+        file_output_text.write(line)
                
     
     return
