@@ -23,6 +23,7 @@ def main():
     global G
     
     read_files_names()
+    print(files_names)
 
     dic.clear()
     #=========================read objects ===========
@@ -42,9 +43,11 @@ def main():
             s ='_s'
         elif (ch[len(ch)-2] == '1'):
             s ='_m'		
+           
         elif(ch[len(ch)-2] == '2'):
             s ='_l'
         sizes.append(s)
+   
     file_input_text.close()
     print(objects)
     #================read relations===========
@@ -64,7 +67,7 @@ def main():
     # ============================load models =========================
     for index,ob in  enumerate(objects):
         element = Model.object(ob)
-		element.size= sizes[index]
+        element.size= sizes[index]
         model, height = load_model(ob[0]+ element.size,sizes[index])
         model = red_m(model)
         x, y, z = model.shape
@@ -250,20 +253,20 @@ def settele_obj(puto):
     # ======== place objects in left/ right/ front/ back arrays
 	    
     for n in puto.right :
-         if (n.setteled == 0): 
-             settele_obj(n)
+         if (dic[n].setteled == 0): 
+             settele_obj(dic[n])
              
     for n in puto.left :
-         if (n.setteled == 0): 
-             settele_obj(n)
+         if (dic[n].setteled == 0): 
+             settele_obj(dic[n])
              
     for n in puto.front :
-         if (n.setteled == 0): 
-             settele_obj(n)
+         if (dic[n].setteled == 0): 
+             settele_obj(dic[n])
              
     for n in puto.back :
-         if (n.setteled == 0): 
-             settele_obj(n)
+         if (dic[n].setteled == 0): 
+             settele_obj(dic[n])
     return
 
 
@@ -343,7 +346,7 @@ def get_left_neighbours(node, m):
     node_rel += list(G.out_edges(node, data=True))
     # print(node_rel)
 
-    # ===============right neighbours===========
+    # ===============left neighbours===========
     for u, v, d in node_rel:
         if (v == node and d['weight'] == 'left'):
             returned_neighbours.append(u)
@@ -365,7 +368,7 @@ def get_front_neighbours(node, m):
     node_rel = list(G.in_edges(node, data=True))
     node_rel += list(G.out_edges(node, data=True))
     # print(node_rel)
-    # ===============right neighbours===========
+    # ===============front neighbours===========
     for u, v, d in node_rel:
         if (v == node and d['weight'] == 'front'):
             returned_neighbours.append(u)
@@ -386,7 +389,7 @@ def get_back_neighbours(node, m):
     node_rel = list(G.in_edges(node, data=True))
     node_rel += list(G.out_edges(node, data=True))
     # print(node_rel)
-    # ===============right neighbours===========
+    # ===============back neighbours===========
     for u, v, d in node_rel:
         if (v == node and d['weight'] == 'behind'):
             returned_neighbours.append(u)
@@ -547,7 +550,7 @@ def red_m(im):
 
 
 def load_model(model_name,size):
-    with open('binvox_files/' + model_name +'_'+ size + '.binvox', 'rb') as f:
+    with open('binvox_files/' + model_name  + '.binvox', 'rb') as f:
         md = binvox_rw.read_as_3d_array(f)
         # print( md.dims)
 
