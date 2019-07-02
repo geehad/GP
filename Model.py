@@ -81,6 +81,24 @@ class Model:
             else:
                 break
 
+	
+    def modify_dimensions (self):
+        
+                   
+            new_z= max(self.dx, self.dy, self.dz)
+            new_matrix = np.zeros((self.dx+1, self.dy+1, new_z+1))
+            
+            for x in self.ds:
+                for y in self.dy:
+                    for z in self.dz:
+                        new_matrix[x][y][z] = self.matrix[x][y][z]
+            
+            self.dz = new_z
+            self.matrix= new_matrix
+            self.shape = self.dx * self.dy * self.dz
+            self.max_p = [self.dx, self.dy, self.dz]
+            self.least_p =[0,0,0]
+            self.calc_freespace ()
 
 class object:
     name = None

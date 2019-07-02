@@ -60,24 +60,15 @@ def main():
         element.tz = element.model.dz + 1
         dic[ob] = element
 
-    '''
-
-    # ===================add enviro=====================
-    element = Model.object(('room', 1))
-    model, height = load_model('room')
-    model = red_m(model)
-    x, y, z = model.shape
-    element.model = Model.Model(x, y, z, model, height)
-    element.tx = element.model.dx + 1
-    element.tz = element.model.dz + 1
-    dic[('room', 1)] = element
-    '''
+    
 
     print(dic.keys())
     sorted_ob_size = sorted(dic.values(), key=sort_model_size, reverse=True)
     enviro_name = sorted_ob_size[0].name
     dic[enviro_name].setteled = 1
-    # dic[enviro_name].base =(('parent',0),'in')
+	if( dic[enviro_name].model.dz <dic[enviro_name].model.dx  and dic[enviro_name].model.dz <dic[enviro_name].model.dy ):
+        dic[enviro_name].model.modify_dimensions()
+   
 
     # ==================create the graph====================================
     G = nx.DiGraph()
@@ -85,16 +76,18 @@ def main():
     G.add_nodes_from(objects)
     for rel in relations:
         G.add_edge(rel[1], rel[2], weight=rel[0])
-
-    # =========================set the base ==================================
-    find_base()
-
-    # ===========================get right/ left / behind/ front ============================
+		
+	# ===========================get right/ left / behind/ front ============================
     Gnodes = G.nodes()
     for n in Gnodes:
         get_neighbours(n)
 
-    # print(dic[('hand',2)].left)
+
+    # =========================set the base ==================================
+    find_base_2()
+
+   
+   
     sorted_ob_size = sorted(dic.values(), key=sort_model_size, reverse=True)
     for puto in sorted_ob_size:
         if (puto.setteled == 1):
@@ -149,9 +142,37 @@ def settele_obj(puto):
         ymax=ymin= (ymin+1)
         '''
     if (puto.base[1] == 'on'):
+	
+	    if( dic[puto.base[0]].setteled == 0):
+            settele_obj( dic[puto.base[0]] )
+            
+        
+        ymin=ymax= dic[puto.base[0]].model.max_p[1] +1   
+        
+        
+        if(puto.model.dx < dic[puto.base[0]].model.dx):
+            xmin=  dic[puto.base[0]].model.least_p[0]
+            xmax=  dic[puto.base[0]].model.max_p[0]
+        else :
+            
+            xmin=  max(0,dic[puto.base[0]].model.least_p[0]  -  math.ceil( (puto.model.dx /2.0 ) - (dic[puto.base[0]].model.dx /2.0))) 
+            xmax= dic[puto.base[0]].model.max_p[0]  + puto.model.dx 
+             
+        if(puto.model.dz < dic[puto.base[0]].model.dz):
+            zmin=  dic[puto.base[0]].model.least_p[2]
+            zmax=  dic[puto.base[0]].model.max_p[2]
+            
+        else:
+             zmin= max(0, dic[puto.base[0]].model.least_p[2]  -  math.ceil( (puto.model.dz /2.0 ) - (dic[puto.base[0]].model.dz /2.0)) )
+             zmax= dic[puto.base[0]].model.max_p[2]  +  puto.model.dz 
+	
+	
+	
+	'''
         xmin, ymin, zmin = dic[puto.base[0]].model.least_p
         xmax, ymax, zmax = dic[puto.base[0]].model.max_p
         ymin = ymax = (ymax + 1)
+		'''
     # ================right and left ===========
     for l in puto.right:
         if (dic[l].setteled == 1):
@@ -215,9 +236,24 @@ def settele_obj(puto):
 
     place_model(en_x, ymin, en_z, puto)
 
-    # =========place it and change setteled =1 and least and max point
 
     # ======== place objects in left/ right/ front/ back arrays
+	    
+    for n in puto.right :
+         if (n.setteled == 0): 
+             settele_obj(n)
+             
+    for n in puto.left :
+         if (n.setteled == 0): 
+             settele_obj(n)
+             
+    for n in puto.front :
+         if (n.setteled == 0): 
+             settele_obj(n)
+             
+    for n in puto.back :
+         if (n.setteled == 0): 
+             settele_obj(n)
     return
 
 
@@ -240,8 +276,11 @@ def place_model(x, y, z, puto):
         for k in range(y, y + m_p[1] + 1):
             for e in range(z, z + m_p[2] + 1):
                 enviro.matrix[i][k][e] = model.matrix[i - x][k - y][e - z]
+	model.update_terminals(x,y,z)
+	'''
     model.least_p = [x, y, z]
     model.max_p = [model.max_p[0] + x, model.max_p[1] + y, model.max_p[2] + z]
+	'''
     print(model.max_p)
     enviro.freepixels += (model.shape - model.freepixels)
     dic[puto.name].setteled = 1
@@ -541,6 +580,30 @@ def save_to_vtk(data, filepath):
 
     return
 
+def find_base_2():
+    global dic
+    
+    relations = list(G.edges( data=True))
+    for  u,v,d in relations:
+        if( d['weight'] == 'on' or  d['weight'] == 'in'):
+            dic[u].base = (v,d['weight'] )
+            for n in dic[u].right :
+                dic[n].base= (v,d['weight'] )
+            for n in dic[u].left :
+                dic[n].base= (v,d['weight'] )
+            for n in dic[u].front :
+                dic[n].base= (v,d['weight'] )
+            for n in dic[u].back :
+                dic[n].base= (v,d['weight'] )
+                
+    nodes = G.nodes()
+    for  ob in nodes:
+        if (dic[ob].base ==None and (dic[ob].name != enviro_name)): 
+            dic[ob].base = (enviro_name, 'in')
+            
+    
+      
+    return
 
 if __name__ == "__main__":
     main()
